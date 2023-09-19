@@ -1,0 +1,20 @@
+{
+  "name": "roll",
+  "module": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "bun build --minify src/index.js --watch --outfile ./dist/js/bundle.js",
+    "docs": "documentation build src/** -f html -o docs --shallow"
+  },
+  "devDependencies": {
+    "documentation": "^14.0.2"
+  },
+  "dependencies": {
+    "axios": "^1.5.0",
+    "chart.js": "^4.4.0",
+    "datatables": "^1.10.18",
+    "datatables.net": "^1.13.6",
+    "jquery": "^3.7.1",
+    "moment": "^2.29.4"
+  }
+}
