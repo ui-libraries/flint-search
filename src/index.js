@@ -111,6 +111,41 @@ async function populateTable() {
     });
 }
 
+const newRowTemplate = `
+    <tr class="searchRow">
+        <td>
+            <select class="form-control logicOperator">
+                <option value="AND">AND</option>
+                <option value="OR">OR</option>
+                <option value="NOT">NOT</option>
+            </select>
+        </td>
+        <td><input type="text" placeholder="Enter search term..." class="form-control" /></td>
+        <td>
+            <select class="form-control">
+                <option value="sender/receiver">Sender/Receiver</option>
+                <option value="subject">Subject</option>
+                <option value="keyword">Keyword</option>
+            </select>
+        </td>
+        <td><button class="btn btn-danger removeRow">-</button></td>
+    </tr>
+`
+
+$('#addRow').on('click', function() {
+    let lastRow = $('#searchTable tbody tr:last')
+    $(newRowTemplate).insertAfter(lastRow)
+})
+
+$('#searchTable').on('click', '.removeRow', function() {
+    console.log("Remove row clicked")
+    let currentRow = $(this).closest('.searchRow');
+    if ($("#searchTable .searchRow").length > 1) { // Ensure there's at least one row remaining
+        currentRow.remove();
+    }
+});
+
+
 
 // Load table on page load
 $(document).ready(function() {
