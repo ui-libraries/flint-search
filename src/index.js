@@ -10,6 +10,7 @@ import Chart from 'chart.js/auto'
 import $ from 'jquery'
 import 'datatables.net'
 import DateTime from 'datatables.net-datetime'
+import './listeners.js'
 
 let dtMin = new DateTime(document.getElementById('min'))
 dtMin.val("2002-01-20")
@@ -111,43 +112,70 @@ async function populateTable() {
     });
 }
 
-const newRowTemplate = `
-    <tr class="searchRow">
-        <td>
-            <select class="form-control logicOperator">
-                <option value="AND">AND</option>
-                <option value="OR">OR</option>
-                <option value="NOT">NOT</option>
-            </select>
-        </td>
-        <td><input type="text" placeholder="Enter search term..." class="form-control" /></td>
-        <td>
-            <select class="form-control">
-                <option value="sender/receiver">Sender/Receiver</option>
-                <option value="subject">Subject</option>
-                <option value="keyword">Keyword</option>
-            </select>
-        </td>
-        <td><button class="btn btn-danger removeRow">-</button></td>
-    </tr>
-`
+function toUnixTimestamp(dateString) {
+    // Convert a date string to UNIX timestamp (seconds since epoch)
+    return Math.floor(new Date(dateString).getTime() / 1000);
+}
 
-$('#addRow').on('click', function() {
-    let lastRow = $('#searchTable tbody tr:last')
-    $(newRowTemplate).insertAfter(lastRow)
-})
+function constructApiUrl(params) {
+    const baseApiUrl = "http://s-lib007.lib.uiowa.edu/flint/api/api.php/records/emails"
+    const filters = []
+    
+    params.search.forEach(term => {
+        const value = encodeURIComponent(term.searchTerm)
+        
+        // Check criteria and add filters accordingly
+        switch (term.criteria) {
+            case "sender/receiver":
+                filters.push(`sender,cs,${value}`)
+                //filters.push(`email_to,cs,${value}`)
+                break
+            case "keyword":
+                filters.push(`full_email,cs,${value}`)
+                break
+            case "subject":
+                filters.push(`subject,cs,${value}`)
+                break
+            default:
+                throw new Error(`Unsupported criteria: ${term.criteria}`)
+        }
 
-$('#searchTable').on('click', '.removeRow', function() {
-    let currentRow = $(this).closest('.searchRow')
-    if ($("#searchTable .searchRow").length > 1) { 
-        currentRow.remove()
+        // Check logicOperator and adjust the filter if needed
+        if (term.logicOperator === "NOT") {
+            const lastIndex = filters.length - 1
+            filters[lastIndex] = `!${filters[lastIndex]}`
+        }
+    })
+
+    // Add date filters
+    if (params.minDate) {
+        filters.push(`timestamp,ge,${toUnixTimestamp(params.minDate)}`)
     }
-})
+    if (params.maxDate) {
+        filters.push(`timestamp,le,${toUnixTimestamp(params.maxDate)}`)
+    }
 
-$('#searchBtn').on('click', function() {
-    console.log("Search button clicked")
-})
+    // Construct final URL
+    return `${baseApiUrl}?filter=${filters.join('&filter=')}`
+}
 
+const searchObj = {
+    "search": [
+        {
+            "searchTerm": "Miller, Mark",
+            "criteria": "sender/receiver"
+        },
+        {
+            "searchTerm": "WIC",
+            "criteria": "keyword",
+            "logicOperator": "AND"
+        }
+    ],
+    "minDate": "2002-01-20",
+    "maxDate": "2023-01-20"
+}
+
+console.log(constructApiUrl(searchObj))
 
 
 // Load table on page load
