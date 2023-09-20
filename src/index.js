@@ -52,7 +52,7 @@ async function renderChart() {
     
 
     new Chart(ctx, {
-        type: 'line',
+        type: 'bar',
         data: {
             labels: labels,
             datasets: [{
@@ -66,7 +66,7 @@ async function renderChart() {
         options: {
             scales: {
                 x: {
-                    type: 'category',  // Changed from 'time' to 'category'
+                    type: 'category',
                 },
                 y: {
                     beginAtZero: true
@@ -138,12 +138,15 @@ $('#addRow').on('click', function() {
 })
 
 $('#searchTable').on('click', '.removeRow', function() {
-    console.log("Remove row clicked")
-    let currentRow = $(this).closest('.searchRow');
-    if ($("#searchTable .searchRow").length > 1) { // Ensure there's at least one row remaining
-        currentRow.remove();
+    let currentRow = $(this).closest('.searchRow')
+    if ($("#searchTable .searchRow").length > 1) { 
+        currentRow.remove()
     }
-});
+})
+
+$('#searchBtn').on('click', function() {
+    console.log("Search button clicked")
+})
 
 
 
