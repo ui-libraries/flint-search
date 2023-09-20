@@ -5,25 +5,89 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Flint Chart</title>
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.css">
+    
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" type="text/css" href="style.css">
   </head>
   <body>
-    <input type="search" class="" placeholder="testy" aria-controls="emailTable">
-    <canvas id="emailChart" width="400" height="200"></canvas>
-    <table id="emailTable" class="display">
-      <thead>
-          <tr>
-              <th>Sender</th>
-              <th>Email To</th>
-              <th>Subject</th>
-              <th>Timestamp</th>
-          </tr>
-      </thead>
-      <tbody>
-          <!-- Data will go here -->
-      </tbody>
-    </table>
-    <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <div class="container">
+      <div class="row mb-3">
+        <div class="col">
+          <table id="searchTable" class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Flint Email Search</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="searchRow">
+                    <td><input type="text" placeholder="Enter search term..." class="form-control" /></td>
+                    <td>
+                        <select class="form-control">
+                            <option value="sender/receiver">Sender/Receiver</option>
+                            <option value="subject">Subject</option>
+                            <option value="keyword">Keyword</option>
+                        </select>
+                    </td>
+                    <td>
+                      <button id="addRow" class="btn btn-primary mr-2">+</button>
+                    </td>
+                </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <label>Minimum date:</label>
+          <input type="text" id="min" name="min" class="form-control">
+        </div>
+        <div class="col-md-6">
+          <label>Maximum date:</label>
+          <input type="text" id="max" name="max" class="form-control">
+        </div>
+      </div>
+
+      <div class="row mb-3">
+        <div class="col">
+          <button id="searchBtn" class="btn btn-success">Search</button>
+        </div>
+      </div>
+
+      <div class="row mb-3">
+        <div class="col">
+          <canvas id="emailChart" width="400" height="200"></canvas>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col">
+          <table id="emailTable" class="display table table-bordered">
+            <thead>
+                <tr>
+                    <th>Sender</th>
+                    <th>Email To</th>
+                    <th>Subject</th>
+                    <th>Timestamp</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Data will go here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Optional Bootstrap JS, and Popper.js before your other scripts -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    
     <script src="js/bundle.js" charset="utf-8"></script>
   </body>
 </html>

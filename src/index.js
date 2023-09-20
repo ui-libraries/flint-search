@@ -9,6 +9,13 @@ import moment from 'moment'
 import Chart from 'chart.js/auto'
 import $ from 'jquery'
 import 'datatables.net'
+import DateTime from 'datatables.net-datetime'
+
+let dtMin = new DateTime(document.getElementById('min'))
+dtMin.val("2002-01-20")
+let dtMax = new DateTime(document.getElementById('max'))
+dtMax.val("2023-01-20")
+
 
 // Function to count emails per day from an array of emails
 function countEmailsPerDay(emails) {
@@ -80,7 +87,7 @@ async function populateTable() {
     const emails = await fetchData(senderName)
     const email = emails.records
     
-    const tableBody = $('#emailTable tbody')
+    const tableBody = $('#emailTable tbody');
     
     // Populate table rows
     email.forEach(email => {
@@ -92,12 +99,18 @@ async function populateTable() {
                 <td>${formatTimestamp(email.timestamp)}</td>
             </tr>
         `
-        tableBody.append(row)
-    })
+        tableBody.append(row);
+    });
 
     // Initialize DataTable
-    $('#emailTable').DataTable()
+    const table = $('#emailTable').DataTable();
+
+    // Bind the date filters to the table redraw event
+    $('#min, #max').change(function() {
+        table.draw();
+    });
 }
+
 
 // Load table on page load
 $(document).ready(function() {
