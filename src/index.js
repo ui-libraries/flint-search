@@ -53,11 +53,15 @@ function formatName(encodedName) {
 
 async function fetchData(url) {
     try {
-        const response = await axios.get(url)
-        return response.data
+        const response = await axios.get(url);
+        if (response.data && Array.isArray(response.data.records)) {
+            response.data.records.sort((a, b) => a.timestamp - b.timestamp);
+        }
+        console.log(response.data);
+        return response.data;
     } catch (error) {
-        console.error("Error fetching data:", error)
-        return []
+        console.error("Error fetching data:", error);
+        return [];
     }
 }
 
