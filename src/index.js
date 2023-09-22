@@ -18,7 +18,6 @@ let dtMax = new DateTime(document.getElementById('max'))
 dtMax.val("2023-01-20")
 
 
-// Function to count emails per day from an array of emails
 function countEmailsPerDay(emails) {
     const counts = {}
     
@@ -80,7 +79,7 @@ async function renderChart() {
 renderChart()
 
 function formatTimestamp(timestamp) {
-    return moment.unix(timestamp).format("YYYY-MM-DD HH:mm:ss");
+    return moment.unix(timestamp).format("YYYY-MM-DD HH:mm:ss")
 }
 
 async function populateTable() {
@@ -88,9 +87,8 @@ async function populateTable() {
     const emails = await fetchData(senderName)
     const email = emails.records
     
-    const tableBody = $('#emailTable tbody');
+    const tableBody = $('#emailTable tbody')
     
-    // Populate table rows
     email.forEach(email => {
         const row = `
             <tr>
@@ -100,21 +98,20 @@ async function populateTable() {
                 <td>${formatTimestamp(email.timestamp)}</td>
             </tr>
         `
-        tableBody.append(row);
-    });
+        tableBody.append(row)
+    })
 
-    // Initialize DataTable
-    const table = $('#emailTable').DataTable();
+    const table = $('#emailTable').DataTable()
 
     // Bind the date filters to the table redraw event
     $('#min, #max').change(function() {
-        table.draw();
-    });
+        table.draw()
+    })
 }
 
 function toUnixTimestamp(dateString) {
     // Convert a date string to UNIX timestamp (seconds since epoch)
-    return Math.floor(new Date(dateString).getTime() / 1000);
+    return Math.floor(new Date(dateString).getTime() / 1000)
 }
 
 function constructApiUrl(params) {
@@ -123,40 +120,37 @@ function constructApiUrl(params) {
     
     params.search.forEach(term => {
         const value = encodeURIComponent(term.searchTerm)
+        let filterKey = 'filter'
         
-        // Check criteria and add filters accordingly
         switch (term.criteria) {
             case "sender/receiver":
-                filters.push(`sender,cs,${value}`)
-                //filters.push(`email_to,cs,${value}`)
+                filters.push(`filter1=sender,cs,${value}`)
+                filters.push(`filter2=email_to,cs,${value}`)
                 break
             case "keyword":
-                filters.push(`full_email,cs,${value}`)
+                filters.push(`${filterKey}=full_email,cs,${value}`)
                 break
             case "subject":
-                filters.push(`subject,cs,${value}`)
+                filters.push(`${filterKey}=subject,cs,${value}`)
                 break
             default:
                 throw new Error(`Unsupported criteria: ${term.criteria}`)
         }
 
-        // Check logicOperator and adjust the filter if needed
         if (term.logicOperator === "NOT") {
             const lastIndex = filters.length - 1
-            filters[lastIndex] = `!${filters[lastIndex]}`
+            filters[lastIndex] = `${filterKey}=!${filters[lastIndex].split('=')[1]}`
         }
     })
 
-    // Add date filters
     if (params.minDate) {
-        filters.push(`timestamp,ge,${toUnixTimestamp(params.minDate)}`)
+        filters.push(`filter=timestamp,ge,${toUnixTimestamp(params.minDate)}`)
     }
     if (params.maxDate) {
-        filters.push(`timestamp,le,${toUnixTimestamp(params.maxDate)}`)
+        filters.push(`filter=timestamp,le,${toUnixTimestamp(params.maxDate)}`)
     }
 
-    // Construct final URL
-    return `${baseApiUrl}?filter=${filters.join('&filter=')}`
+    return `${baseApiUrl}?${filters.join('&')}`
 }
 
 const searchObj = {
@@ -164,11 +158,6 @@ const searchObj = {
         {
             "searchTerm": "Miller, Mark",
             "criteria": "sender/receiver"
-        },
-        {
-            "searchTerm": "WIC",
-            "criteria": "keyword",
-            "logicOperator": "AND"
         }
     ],
     "minDate": "2002-01-20",
