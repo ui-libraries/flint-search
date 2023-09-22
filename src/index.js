@@ -13,7 +13,8 @@ import DateTime from 'datatables.net-datetime'
 //import './listeners.js'
 
 let flintChart
-
+//const pdf_url = "http://d3o55pxnb4jrui.cloudfront.net/"
+const pdf_url = "http://s-lib007.lib.uiowa.edu/flint/pdf/"
 let dtMin = new DateTime(document.getElementById('min'))
 dtMin.val("2002-01-20")
 let dtMax = new DateTime(document.getElementById('max'))
@@ -112,12 +113,16 @@ async function populateTable(url) {
     const tableBody = $('#emailTable tbody')
     
     email.forEach(email => {
+        // convert the email.bookmark to lowercase
+        email.bookmark = email.bookmark.toLowerCase()        
         const row = `
             <tr>
                 <td>${email.sender}</td>
                 <td>${email.email_to}</td>
                 <td>${email.subject}</td>
                 <td>${formatTimestamp(email.timestamp)}</td>
+                <td><a href="${pdf_url + email.bookmark}.pdf" target="_blank" title="Open PDF"><i class="fas fa-file-pdf fa-2x" style="color: #FF0000;"></i></td>
+            </a></td>
             </tr>
         `
         tableBody.append(row)
@@ -243,6 +248,7 @@ $('#searchBtn').on('click', function() {
     }
 
     let url = constructApiUrl(allData)
+    console.log(url)
     renderChart(url)
     populateTable(url)
 })
