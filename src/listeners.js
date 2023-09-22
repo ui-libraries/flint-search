@@ -38,12 +38,10 @@ $('#searchBtn').on('click', function() {
 $('#searchBtn').on('click', function() {
     let searchData = [];
 
-    // Collect values from all the searchRows
     $('#searchTable .searchRow').each(function() {
         let searchTerm = $(this).find('input').val()
         let criteria = $(this).find('select:not(.logicOperator)').val()
 
-        // Check if the row has a logic operator select element and get its value
         let logicOperator = $(this).find('.logicOperator').val()
 
         let row = {
@@ -51,7 +49,6 @@ $('#searchBtn').on('click', function() {
             criteria: criteria
         }
 
-        // If there's a logic operator in the row, add it to the data
         if (logicOperator) {
             row.logicOperator = logicOperator
         }
@@ -59,11 +56,9 @@ $('#searchBtn').on('click', function() {
         searchData.push(row)
     })
 
-    // Get the date values
     let minDate = $('#min').val()
     let maxDate = $('#max').val()
 
-    // Combine all the data
     let allData = {
         search: searchData,
         minDate: minDate,

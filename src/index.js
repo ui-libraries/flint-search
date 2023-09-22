@@ -10,7 +10,9 @@ import Chart from 'chart.js/auto'
 import $ from 'jquery'
 import 'datatables.net'
 import DateTime from 'datatables.net-datetime'
-import './listeners.js'
+//import './listeners.js'
+
+let flintChart
 
 let dtMin = new DateTime(document.getElementById('min'))
 dtMin.val("2002-01-20")
@@ -29,9 +31,28 @@ function countEmailsPerDay(emails) {
     return counts
 }
 
-async function fetchData(senderName) {
+function formatName(encodedName) {
+    // Decode the URI components
+    const inputName = decodeURIComponent(encodedName)
+
+    // Remove any leading or trailing whitespaces
+    const trimmedName = inputName.trim()
+
+    // Find the last space in the string assuming that the string after the last space is the last name.
+    const lastSpaceIndex = trimmedName.lastIndexOf(' ')
+
+    // If no space is found, return the input as it is.
+    if (lastSpaceIndex === -1) return trimmedName
+
+    const firstName = trimmedName.substring(0, lastSpaceIndex).trim()
+    const lastName = trimmedName.substring(lastSpaceIndex).trim()
+
+    // Return the formatted name
+    return encodeURIComponent(`${lastName}, ${firstName}`)
+}
+
+async function fetchData(url) {
     try {
-        const url = `http://s-lib007.lib.uiowa.edu/flint/api/api.php/records/emails?filter=sender,cs,${encodeURIComponent(senderName)}`
         const response = await axios.get(url)
         return response.data
     } catch (error) {
@@ -40,23 +61,23 @@ async function fetchData(senderName) {
     }
 }
 
-async function renderChart() {
-    const senderName = "Miller, Mark"
-    const emails = await fetchData(senderName)
+async function renderChart(url) {
+    const emails = await fetchData(url)
     const emailCounts = countEmailsPerDay(emails.records)
 
     const labels = Object.keys(emailCounts).map(date => moment(date).format("YYYY-MM-DD"))
     const data = Object.values(emailCounts)
 
     const ctx = document.getElementById('emailChart').getContext('2d')
+    if (flintChart) flintChart.destroy()
     
 
-    new Chart(ctx, {
+    flintChart = new Chart(ctx, {
         type: 'bar',
         data: {
             labels: labels,
             datasets: [{
-                label: `Emails by ${senderName}`,
+                label: `Number of emails per day.`,
                 data: data,
                 borderColor: 'rgba(75, 192, 192, 1)',
                 borderWidth: 1,
@@ -76,15 +97,12 @@ async function renderChart() {
     })
 }
 
-renderChart()
-
 function formatTimestamp(timestamp) {
     return moment.unix(timestamp).format("YYYY-MM-DD HH:mm:ss")
 }
 
-async function populateTable() {
-    const senderName = "Miller, Mark"
-    const emails = await fetchData(senderName)
+async function populateTable(url) {
+    const emails = await fetchData(url)
     const email = emails.records
     
     const tableBody = $('#emailTable tbody')
@@ -124,8 +142,8 @@ function constructApiUrl(params) {
         
         switch (term.criteria) {
             case "sender/receiver":
-                filters.push(`filter1=sender,cs,${value}`)
-                filters.push(`filter2=email_to,cs,${value}`)
+                filters.push(`filter1=sender,cs,${formatName(value)}`)
+                filters.push(`filter2=email_to,cs,${formatName(value)}`)
                 break
             case "keyword":
                 filters.push(`${filterKey}=full_email,cs,${value}`)
@@ -153,21 +171,74 @@ function constructApiUrl(params) {
     return `${baseApiUrl}?${filters.join('&')}`
 }
 
-const searchObj = {
-    "search": [
-        {
-            "searchTerm": "Miller, Mark",
-            "criteria": "sender/receiver"
+const newRowTemplate = `
+    <tr class="searchRow">
+        <td>
+            <select class="form-control logicOperator">
+                <option value="AND">AND</option>
+                <option value="OR">OR</option>
+                <option value="NOT">NOT</option>
+            </select>
+        </td>
+        <td><input type="text" placeholder="Enter search term..." class="form-control" /></td>
+        <td>
+            <select class="form-control">
+                <option value="sender/receiver">Sender/Receiver</option>
+                <option value="subject">Subject</option>
+                <option value="keyword">Keyword</option>
+            </select>
+        </td>
+        <td><button class="btn btn-danger removeRow">-</button></td>
+    </tr>
+`
+
+$('#addRow').on('click', function() {
+    let lastRow = $('#searchTable tbody tr:last')
+    $(newRowTemplate).insertAfter(lastRow)
+})
+
+$('#searchTable').on('click', '.removeRow', function() {
+    let currentRow = $(this).closest('.searchRow')
+    if ($("#searchTable .searchRow").length > 1) { 
+        currentRow.remove()
+    }
+})
+
+$('#searchBtn').on('click', function() {
+    console.log("Search button clicked")
+})
+
+$('#searchBtn').on('click', function() {
+    let searchData = []
+
+    $('#searchTable .searchRow').each(function() {
+        let searchTerm = $(this).find('input').val()
+        let criteria = $(this).find('select:not(.logicOperator)').val()
+
+        let logicOperator = $(this).find('.logicOperator').val()
+
+        let row = {
+            searchTerm: searchTerm,
+            criteria: criteria
         }
-    ],
-    "minDate": "2002-01-20",
-    "maxDate": "2023-01-20"
-}
 
-console.log(constructApiUrl(searchObj))
+        if (logicOperator) {
+            row.logicOperator = logicOperator
+        }
 
+        searchData.push(row)
+    })
 
-// Load table on page load
-$(document).ready(function() {
-    populateTable()
+    let minDate = $('#min').val()
+    let maxDate = $('#max').val()
+
+    let allData = {
+        search: searchData,
+        minDate: minDate,
+        maxDate: maxDate
+    }
+
+    let url = constructApiUrl(allData)
+    renderChart(url)
+    populateTable(url)
 })
