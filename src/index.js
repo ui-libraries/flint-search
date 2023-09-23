@@ -10,9 +10,8 @@ import Chart from 'chart.js/auto'
 import $ from 'jquery'
 import 'datatables.net'
 import DateTime from 'datatables.net-datetime'
-//import './listeners.js'
 
-let flintChart
+let flintChart, table
 //const pdf_url = "http://d3o55pxnb4jrui.cloudfront.net/"
 const pdf_url = "http://s-lib007.lib.uiowa.edu/flint/pdf/"
 let dtMin = new DateTime(document.getElementById('min'))
@@ -107,10 +106,12 @@ function formatTimestamp(timestamp) {
 }
 
 async function populateTable(url) {
+    if (table) table.destroy()
     const emails = await fetchData(url)
     const email = emails.records
     
     const tableBody = $('#emailTable tbody')
+    tableBody.empty()
     
     email.forEach(email => {
         // convert the email.bookmark to lowercase
@@ -128,7 +129,7 @@ async function populateTable(url) {
         tableBody.append(row)
     })
 
-    const table = $('#emailTable').DataTable()
+    table = $('#emailTable').DataTable()
 
     // Bind the date filters to the table redraw event
     $('#min, #max').change(function() {
