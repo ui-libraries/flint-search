@@ -57,7 +57,6 @@ async function fetchData(url) {
         if (response.data && Array.isArray(response.data.records)) {
             response.data.records.sort((a, b) => a.timestamp - b.timestamp);
         }
-        console.log(response.data);
         return response.data;
     } catch (error) {
         console.error("Error fetching data:", error);
@@ -119,10 +118,10 @@ async function populateTable(url) {
         const row = `
             <tr>
                 <td>${email.sender}</td>
-                <td>${email.email_to}</td>
+                <td>${email.recipient_to}</td>
                 <td>${email.subject}</td>
                 <td>${formatTimestamp(email.timestamp)}</td>
-                <td><a href="${pdf_url + email.bookmark}.pdf" target="_blank" title="Open PDF"><i class="fas fa-file-pdf fa-2x" style="color: #FF0000;"></i></td>
+                <td><a href="${email.bookmark_url}" target="_blank" title="Open PDF"><i class="fas fa-file-pdf fa-2x" style="color: #FF0000;"></i></td>
             </a></td>
             </tr>
         `
@@ -153,10 +152,10 @@ function constructApiUrl(params) {
         switch (term.criteria) {
             case "sender/receiver":
                 filters.push(`filter1=sender,cs,${formatName(value)}`)
-                filters.push(`filter2=email_to,cs,${formatName(value)}`)
+                filters.push(`filter2=recipient_to,cs,${formatName(value)}`)
                 break
             case "keyword":
-                filters.push(`${filterKey}=full_email,cs,${value}`)
+                filters.push(`${filterKey}=full_text,cs,${value}`)
                 break
             case "subject":
                 filters.push(`${filterKey}=subject,cs,${value}`)
