@@ -16,6 +16,7 @@
     "datatables.net": "^1.13.6",
     "datatables.net-datetime": "^1.5.0",
     "jquery": "^3.7.1",
+    "js-crud-api": "^0.3.0",
     "moment": "^2.29.4"
   }
 }

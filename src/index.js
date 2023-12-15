@@ -9,15 +9,11 @@ import moment from 'moment'
 import Chart from 'chart.js/auto'
 import $ from 'jquery'
 import 'datatables.net'
-import DateTime from 'datatables.net-datetime'
+
 
 let flintChart, table
 //const pdf_url = "http://d3o55pxnb4jrui.cloudfront.net/"
 const pdf_url = "http://s-lib007.lib.uiowa.edu/flint/pdf/"
-let dtMin = new DateTime(document.getElementById('min'))
-dtMin.val("2002-01-20")
-let dtMax = new DateTime(document.getElementById('max'))
-dtMax.val("2023-01-20")
 
 
 function countEmailsPerDay(emails) {
@@ -138,7 +134,8 @@ async function populateTable(url) {
 
 function toUnixTimestamp(dateString) {
     // Convert a date string to UNIX timestamp (seconds since epoch)
-    return Math.floor(new Date(dateString).getTime() / 1000)
+    let time = Math.floor(new Date(dateString).getTime() / 1000)
+    console.log(time)
 }
 
 function constructApiUrl(params) {
