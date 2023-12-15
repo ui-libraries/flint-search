@@ -76,7 +76,7 @@ async function renderChart(url) {
         data: {
             labels: labels,
             datasets: [{
-                label: `Number of emails per day.`,
+                label: `Number of emails per day`,
                 data: data,
                 borderColor: 'rgba(75, 192, 192, 1)',
                 borderWidth: 1,
@@ -132,10 +132,12 @@ async function populateTable(url) {
     })
 }
 
-function toUnixTimestamp(dateString) {
-    // Convert a date string to UNIX timestamp (seconds since epoch)
-    let time = Math.floor(new Date(dateString).getTime() / 1000)
-    console.log(time)
+function toUnixTimestamp(dateString, offsetHours = 0) {
+    // Convert a date string to a UNIX timestamp (seconds since epoch)
+    // Adjust for time zone offset
+    let time = new Date(dateString).getTime();
+    time += offsetHours * 3600000; // offsetHours to milliseconds
+    return Math.floor(time / 1000);
 }
 
 function constructApiUrl(params) {
@@ -173,7 +175,7 @@ function constructApiUrl(params) {
     if (params.maxDate) {
         filters.push(`filter=timestamp,le,${toUnixTimestamp(params.maxDate)}`)
     }
-
+    console.log(`${baseApiUrl}?${filters.join('&')}`)
     return `${baseApiUrl}?${filters.join('&')}`
 }
 
@@ -190,7 +192,7 @@ const newRowTemplate = `
         <td>
             <select class="form-control">
                 <option value="sender/receiver">Sender/Receiver</option>
-                <option value="subject">Subject</option>
+                <option value="subject">Subject Line</option>
                 <option value="keyword">Keyword</option>
             </select>
         </td>
